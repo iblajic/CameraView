@@ -42,13 +42,11 @@ public class CameraManager: NSObject, ObservableObject { init(_ attributes: Attr
     // MARK: Devices
     private var frontCamera: AVCaptureDevice?
     private var backCamera: AVCaptureDevice?
-    private var microphone: AVCaptureDevice?
 
     // MARK: Input
     private var captureSession: AVCaptureSession!
     private var frontCameraInput: AVCaptureDeviceInput?
     private var backCameraInput: AVCaptureDeviceInput?
-    private var audioInput: AVCaptureDeviceInput?
 
     // MARK: Output
     private var photoOutput: AVCapturePhotoOutput?
@@ -101,11 +99,9 @@ private extension CameraManager {
     func resetOthers() {
         frontCamera = nil
         backCamera = nil
-        microphone = nil
         captureSession = nil
         frontCameraInput = nil
         backCameraInput = nil
-        audioInput = nil
         photoOutput = nil
         videoOutput = nil
         metalDevice = nil
@@ -170,7 +166,6 @@ private extension CameraManager {
     func checkPermissions() { Task { @MainActor in
         do {
             try await checkPermissions(.video)
-            try await checkPermissions(.audio)
             animateCameraViewEntrance()
         } catch { attributes.error = error as? Error }
     }}
@@ -212,12 +207,10 @@ private extension CameraManager {
     func initialiseDevices() {
         frontCamera = .default(.builtInWideAngleCamera, for: .video, position: .front)
         backCamera = .default(for: .video)
-        microphone = .default(for: .audio)
     }
     func initialiseInputs() {
         frontCameraInput = .init(frontCamera)
         backCameraInput = .init(backCamera)
-        audioInput = .init(microphone)
     }
     func initialiseOutputs() {
         photoOutput = .init()
@@ -232,7 +225,6 @@ private extension CameraManager {
     }
     func setupDeviceInputs() throws {
         try setupCameraInput(attributes.cameraPosition)
-        try setupInput(audioInput)
     }
     func setupDeviceOutput() throws {
         try setupCameraOutput(attributes.outputType)
@@ -278,7 +270,6 @@ private extension CameraManager {
 }
 private extension CameraManager {
     func getPermissionsError(_ mediaType: AVMediaType) -> Error { switch mediaType {
-        case .audio: .microphonePermissionsNotGranted
         case .video: .cameraPermissionsNotGranted
         default: .cameraPermissionsNotGranted
     }}
@@ -955,7 +946,7 @@ private extension CameraManager {
 
 // MARK: - Errors
 public extension CameraManager { enum Error: Swift.Error {
-    case microphonePermissionsNotGranted, cameraPermissionsNotGranted
+    case cameraPermissionsNotGranted
     case cannotSetupInput, cannotSetupOutput, capturedPhotoCannotBeFetched
     case incorrectFrameRate
 }}

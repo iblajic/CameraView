@@ -24,12 +24,10 @@ public extension MCameraErrorView {
 }
 public extension MCameraErrorView {
     func getDefaultTitle() -> String { switch error {
-        case .microphonePermissionsNotGranted: NSLocalizedString("Enable Microphone Access", comment: "")
         case .cameraPermissionsNotGranted: NSLocalizedString("Enable Camera Access", comment: "")
         default: ""
     }}
     func getDefaultDescription() -> String { switch error {
-        case .microphonePermissionsNotGranted: Bundle.main.infoDictionary?["NSMicrophoneUsageDescription"] as? String ?? ""
         case .cameraPermissionsNotGranted: Bundle.main.infoDictionary?["NSCameraUsageDescription"] as? String ?? ""
         default: ""
     }}
