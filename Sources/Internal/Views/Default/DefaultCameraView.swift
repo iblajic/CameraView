@@ -49,7 +49,6 @@ private extension DefaultCameraView {
     func createContentView() -> some View {
         ZStack {
             createCameraView()
-            createOutputTypeButtons()
         }
     }
     func createBottomView() -> some View {
@@ -96,7 +95,6 @@ private extension DefaultCameraView {
     func createTopRightView() -> some View {
         HStack(spacing: 12) {
             createGridButton()
-            createFlipOutputButton()
             createFlashButton()
         }
         .frame(maxWidth: .infinity, alignment: .trailing)

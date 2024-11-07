@@ -16,7 +16,7 @@ public struct MCameraController: View {
     @Namespace var namespace
     var config: CameraConfig = .init()
 
-    
+
     public var body: some View {
         ZStack { switch cameraManager.attributes.error {
             case .some(let error): createErrorStateView(error)
@@ -70,13 +70,13 @@ private extension MCameraController {
         config.appDelegate?.orientationLock = .all
     }
     func performAfterMediaCapturedAction() { if let capturedMedia = cameraManager.attributes.capturedMedia {
-        notifyUserOfMediaCaptured(capturedMedia)
+        notifyUserOfMediaCaptured(capturedMedia, position: cameraManager.attributes.cameraPosition)
         performPostCameraAction()
     }}
 }
 private extension MCameraController {
-    func notifyUserOfMediaCaptured(_ capturedMedia: MCameraMedia) {
-        if let image = capturedMedia.image { config.onImageCaptured(image) }
+    func notifyUserOfMediaCaptured(_ capturedMedia: MCameraMedia, position: CameraPosition) {
+        if let image = capturedMedia.image { config.onImageCaptured(image, position) }
         else if let video = capturedMedia.video { config.onVideoCaptured(video) }
     }
     func performPostCameraAction() { let afterMediaCaptured = config.afterMediaCaptured(.init())

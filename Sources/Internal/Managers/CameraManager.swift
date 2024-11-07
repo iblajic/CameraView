@@ -180,7 +180,7 @@ private extension CameraManager {
     }
     func initialiseCameraLayer(_ cameraView: UIView) {
         cameraLayer = .init(session: captureSession)
-        cameraLayer.videoGravity = .resizeAspectFill
+        cameraLayer.videoGravity = .resize
         cameraLayer.isHidden = true
 
         cameraView.layer.addSublayer(cameraLayer)
@@ -194,7 +194,7 @@ private extension CameraManager {
         cameraMetalView.framebufferOnly = false
         cameraMetalView.autoResizeDrawable = false
 
-        cameraMetalView.contentMode = .scaleAspectFill
+        cameraMetalView.contentMode = .scaleAspectFit
         cameraMetalView.clipsToBounds = true
         cameraMetalView.addToParent(cameraView)
     }
@@ -202,7 +202,14 @@ private extension CameraManager {
         cameraGridView?.removeFromSuperview()
         cameraGridView = .init()
         cameraGridView.alpha = attributes.isGridVisible ? 1 : 0
-        cameraGridView.addToParent(cameraView)
+
+        let height = cameraView.frame.width * 4.0 / 3.0
+        cameraView.addSubview(cameraGridView)
+        cameraGridView.translatesAutoresizingMaskIntoConstraints = false
+        cameraGridView.leftAnchor.constraint(equalTo: cameraView.leftAnchor, constant: 0).isActive = true
+        cameraGridView.rightAnchor.constraint(equalTo: cameraView.rightAnchor, constant: 0).isActive = true
+        cameraGridView.centerYAnchor.constraint(equalTo: cameraView.centerYAnchor, constant: 0).isActive = true
+        cameraGridView.heightAnchor.constraint(equalToConstant: height).isActive = true
     }
     func initialiseDevices() {
         frontCamera = .default(.builtInWideAngleCamera, for: .video, position: .front)
@@ -298,7 +305,7 @@ extension CameraManager {
 
 // MARK: - Camera Rotation
 extension CameraManager {
-    func fixCameraRotation() { if !orientationLocked { 
+    func fixCameraRotation() { if !orientationLocked {
         redrawGrid()
     }}
 }
@@ -343,7 +350,7 @@ extension CameraManager {
             removeCameraInput(attributes.cameraPosition)
             try setupCameraInput(newPosition)
             updateCameraPosition(newPosition)
-            
+
             updateTorchMode(.off)
             removeBlur()
         }
@@ -786,14 +793,14 @@ private extension CameraManager {
 private extension CameraManager {
     func getNewFrameOrientationForBackCamera(_ orientation: UIDeviceOrientation) -> CGImagePropertyOrientation { switch orientation {
         case .portrait: attributes.mirrorOutput ? .leftMirrored : .right
-        case .landscapeLeft: attributes.mirrorOutput ? .upMirrored : .up
-        case .landscapeRight: attributes.mirrorOutput ? .downMirrored : .down
+        case .landscapeLeft: attributes.mirrorOutput ? .rightMirrored : .right
+        case .landscapeRight: attributes.mirrorOutput ? .rightMirrored : .right
         default: attributes.mirrorOutput ? .leftMirrored : .right
     }}
     func getNewFrameOrientationForFrontCamera(_ orientation: UIDeviceOrientation) -> CGImagePropertyOrientation { switch orientation {
         case .portrait: attributes.mirrorOutput ? .right : .leftMirrored
-        case .landscapeLeft: attributes.mirrorOutput ? .down : .downMirrored
-        case .landscapeRight: attributes.mirrorOutput ? .up : .upMirrored
+        case .landscapeLeft: attributes.mirrorOutput ? .left : .leftMirrored
+        case .landscapeRight: attributes.mirrorOutput ? .left : .leftMirrored
         default: attributes.mirrorOutput ? .right : .leftMirrored
     }}
     func shouldAnimateFrameOrientationChange(_ newFrameOrientation: CGImagePropertyOrientation) -> Bool {
@@ -862,8 +869,14 @@ private extension CameraManager {
     }
     func insertBlurView(_ snapshot: UIImage?) { if let snapshot {
         cameraBlurView = UIImageView(image: snapshot)
-        cameraBlurView.frame = cameraView.frame
-        cameraBlurView.contentMode = .scaleAspectFill
+        let blurViewHeight = cameraView.frame.width * 4.0 / 3.0
+        let blurViewFrame = CGRect(
+            x: cameraView.frame.origin.x,
+            y: cameraView.frame.origin.y + (cameraView.frame.height - blurViewHeight) / 2.0,
+            width: cameraView.frame.width,
+            height: blurViewHeight)
+        cameraBlurView.frame = blurViewFrame
+        cameraBlurView.contentMode = .scaleAspectFit
         cameraBlurView.clipsToBounds = true
         cameraBlurView.applyBlurEffect(style: .regular, animationDuration: blurAnimationDuration)
 

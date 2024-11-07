@@ -15,13 +15,13 @@ struct CameraConfig {
     // MARK: Default Views
     var cameraErrorView: ErrorViewBuilder = DefaultCameraErrorView.init
     var cameraView: CameraViewBuilder = DefaultCameraView.init
-    var mediaPreviewView: PreviewViewBuilder? = DefaultCameraPreview.init
+    var mediaPreviewView: PreviewViewBuilder? = nil
 
     // MARK: To Lock Orientation
     var appDelegate: MApplicationDelegate.Type? = nil
 
     // MARK: Actions
-    var onImageCaptured: (UIImage) -> () = { _ in }
+    var onImageCaptured: (UIImage, CameraPosition) -> () = { _, _ in }
     var onVideoCaptured: (URL) -> () = { _ in }
     var afterMediaCaptured: (PostCameraConfig) -> (PostCameraConfig) = { _ in .init() }
     var onCloseController: () -> () = {}
