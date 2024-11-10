@@ -17,50 +17,108 @@ public struct DefaultCameraView: MCameraView {
     public let closeControllerAction: () -> ()
     var config: Config = .init()
 
+    @State var orientation = UIDevice.current.orientation
 
     public var body: some View {
-        VStack(spacing: 0) {
-            createTopView()
-            createContentView()
-            createBottomView()
+        GeometryReader { geo in
+            if geo.size.width < geo.size.height {
+                VStack(spacing: 0) {
+                    createTopView(isPortrait: true)
+                    createContentView()
+                    createBottomView(isPortrait: true)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.background.ignoresSafeArea())
+                .animation(.defaultSpring, value: isRecording)
+                .animation(.defaultSpring, value: outputType)
+                .animation(.defaultSpring, value: hasTorch)
+                .animation(.defaultSpring, value: iconAngle)
+            } else if geo.size.width > geo.size.height {
+                if orientation == .landscapeLeft {
+                    HStack(spacing: 0) {
+                        createTopView(isPortrait: false)
+                        createContentView()
+                        createBottomView(isPortrait: false)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.background.ignoresSafeArea())
+                    .animation(.defaultSpring, value: isRecording)
+                    .animation(.defaultSpring, value: outputType)
+                    .animation(.defaultSpring, value: hasTorch)
+                    .animation(.defaultSpring, value: iconAngle)
+                } else if orientation == .landscapeRight {
+                     HStack(spacing: 0) {
+                        createBottomView(isPortrait: false)
+                        createContentView()
+                        createTopView(isPortrait: false)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.background.ignoresSafeArea())
+                    .animation(.defaultSpring, value: isRecording)
+                    .animation(.defaultSpring, value: outputType)
+                    .animation(.defaultSpring, value: hasTorch)
+                    .animation(.defaultSpring, value: iconAngle)
+                }
+            }
         }
-        .ignoresSafeArea(.all, edges: .horizontal)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.background.ignoresSafeArea())
-        .statusBarHidden()
-        .animation(.defaultSpring, value: isRecording)
-        .animation(.defaultSpring, value: outputType)
-        .animation(.defaultSpring, value: hasTorch)
-        .animation(.defaultSpring, value: iconAngle)
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+            if UIDevice.current.orientation != .faceUp && UIDevice.current.orientation != .faceDown && UIDevice.current.orientation != .portraitUpsideDown {
+                self.orientation = UIDevice.current.orientation
+            }
+        }
     }
 }
 private extension DefaultCameraView {
-    func createTopView() -> some View {
-        ZStack {
-            createCloseButton()
-            createTopCentreView()
-            createTopRightView()
+    func createTopView(isPortrait: Bool) -> some View {
+        if isPortrait {
+            ZStack {
+                createCloseButton(isPortrait: true)
+                createTopCentreView(isPortrait: true)
+                createTopRightView(isPortrait: true)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 4)
+            .padding(.bottom, 12)
+            .padding(.horizontal, 20)
+        } else {
+            ZStack {
+                createCloseButton(isPortrait: false)
+                createTopCentreView(isPortrait: false)
+                createTopRightView(isPortrait: false)
+            }
+            .frame(maxHeight: .infinity)
+            .padding(.leading, 4)
+            .padding(.trailing, 12)
+            .padding(.vertical, 20)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 4)
-        .padding(.bottom, 12)
-        .padding(.horizontal, 20)
     }
     func createContentView() -> some View {
         ZStack {
             createCameraView()
         }
     }
-    func createBottomView() -> some View {
-        ZStack {
-            createTorchButton()
-            createCaptureButton()
-            createChangeCameraButton()
+    func createBottomView(isPortrait: Bool) -> some View {
+        if isPortrait {
+            ZStack {
+                createTorchButton(isPortrait: true)
+                createCaptureButton(isPortrait: true)
+                createChangeCameraButton(isPortrait: true)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 16)
+            .padding(.bottom, 12)
+            .padding(.horizontal, 32)
+        } else {
+            ZStack {
+                createTorchButton(isPortrait: false)
+                createCaptureButton(isPortrait: false)
+                createChangeCameraButton(isPortrait: false)
+            }
+            .frame(maxHeight: .infinity)
+            .padding(.leading, 16)
+            .padding(.trailing, 12)
+            .padding(.vertical, 32)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 16)
-        .padding(.bottom, 12)
-        .padding(.horizontal, 32)
     }
 }
 private extension DefaultCameraView {
@@ -80,25 +138,47 @@ private extension DefaultCameraView {
     }
 }
 private extension DefaultCameraView {
-    func createCloseButton() -> some View {
-        CloseButton(action: closeControllerAction)
-            .rotationEffect(iconAngle)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .isActive(!isRecording)
+    func createCloseButton(isPortrait: Bool) -> some View {
+        if isPortrait {
+            CloseButton(action: closeControllerAction)
+                .rotationEffect(iconAngle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .isActive(!isRecording)
+        }
+        else {
+            CloseButton(action: closeControllerAction)
+                .rotationEffect(iconAngle)
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .isActive(!isRecording)
+        }
     }
-    func createTopCentreView() -> some View {
+    func createTopCentreView(isPortrait: Bool) -> some View {
         Text(recordingTime.toString())
             .font(.system(size: 20, weight: .medium, design: .monospaced))
             .foregroundColor(.white)
             .isActive(isRecording)
     }
-    func createTopRightView() -> some View {
-        HStack(spacing: 12) {
-            createGridButton()
-            createFlashButton()
+    @ViewBuilder
+    func createTopRightView(isPortrait: Bool) -> some View {
+        if isPortrait {
+            Group {
+                HStack(spacing: 12) {
+                    createGridButton()
+                    createFlashButton()
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .isActive(!isRecording)
+                }
+        } else {
+            Group {
+                VStack(spacing: 12) {
+                    createGridButton()
+                    createFlashButton()
+                }
+                .frame(maxHeight: .infinity, alignment: .top)
+                .isActive(!isRecording)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .trailing)
-        .isActive(!isRecording)
     }
 }
 private extension DefaultCameraView {
@@ -122,24 +202,42 @@ private extension DefaultCameraView {
     }
 }
 private extension DefaultCameraView {
-    func createTorchButton() -> some View {
-        BottomButton(icon: "icon-torch", active: torchMode == .on, action: changeTorchMode)
-            .matchedGeometryEffect(id: "button-bottom-left", in: namespace)
-            .rotationEffect(iconAngle)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .isActive(hasTorch)
-            .isActive(config.torchButtonVisible)
+    func createTorchButton(isPortrait: Bool) -> some View {
+        if isPortrait {
+            BottomButton(icon: "icon-torch", active: torchMode == .on, action: changeTorchMode)
+                .matchedGeometryEffect(id: "button-bottom-left", in: namespace)
+                .rotationEffect(iconAngle)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .isActive(hasTorch)
+                .isActive(config.torchButtonVisible)
+        } else {
+            BottomButton(icon: "icon-torch", active: torchMode == .on, action: changeTorchMode)
+                .matchedGeometryEffect(id: "button-bottom-left", in: namespace)
+                .rotationEffect(iconAngle)
+                .frame(maxHeight: .infinity, alignment: .bottom)
+                .isActive(hasTorch)
+                .isActive(config.torchButtonVisible)
+        }
     }
-    func createCaptureButton() -> some View {
+    func createCaptureButton(isPortrait: Bool) -> some View {
         CaptureButton(action: captureOutput, mode: outputType, isRecording: isRecording).isActive(config.captureButtonVisible)
     }
-    func createChangeCameraButton() -> some View {
-        BottomButton(icon: "icon-change-camera", active: false, action: changeCameraPosition)
-            .matchedGeometryEffect(id: "button-bottom-right", in: namespace)
-            .rotationEffect(iconAngle)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-            .isActive(!isRecording)
-            .isActive(config.changeCameraButtonVisible)
+    func createChangeCameraButton(isPortrait: Bool) -> some View {
+        if isPortrait {
+            BottomButton(icon: "icon-change-camera", active: false, action: changeCameraPosition)
+                .matchedGeometryEffect(id: "button-bottom-right", in: namespace)
+                .rotationEffect(iconAngle)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .isActive(!isRecording)
+                .isActive(config.changeCameraButtonVisible)
+        } else {
+            BottomButton(icon: "icon-change-camera", active: false, action: changeCameraPosition)
+                .matchedGeometryEffect(id: "button-bottom-right", in: namespace)
+                .rotationEffect(iconAngle)
+                .frame(maxHeight: .infinity, alignment: .top)
+                .isActive(!isRecording)
+                .isActive(config.changeCameraButtonVisible)
+        }
     }
     func createOutputTypeButton(_ cameraOutputType: CameraOutputType) -> some View {
         OutputTypeButton(type: cameraOutputType, active: cameraOutputType == outputType, action: { changeCameraOutputType(cameraOutputType) })

@@ -13,14 +13,14 @@ import SwiftUI
 
 struct CameraInputBridgeView: UIViewRepresentable {
     let cameraManager: CameraManager
-    private var inputView: UICameraInputView = .init()
+    private static var inputView: UICameraInputView = .init()
 
     init(_ cameraManager: CameraManager) { self.cameraManager = cameraManager }
 }
 extension CameraInputBridgeView {
     func makeUIView(context: Context) -> some UIView {
-        inputView.cameraManager = cameraManager
-        return inputView.view
+        CameraInputBridgeView.inputView.cameraManager = cameraManager
+        return CameraInputBridgeView.inputView.view
     }
     func updateUIView(_ uiView: UIViewType, context: Context) {}
 }

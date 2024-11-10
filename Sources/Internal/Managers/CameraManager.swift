@@ -17,11 +17,11 @@ import MijickTimer
 
 public class CameraManager: NSObject, ObservableObject { init(_ attributes: Attributes) { self.initialAttributes = attributes; self.attributes = attributes }
     // MARK: Attributes
-    struct Attributes {
+    public struct Attributes {
         var capturedMedia: MCameraMedia? = nil
         var error: Error? = nil
         var outputType: CameraOutputType = .photo
-        var cameraPosition: CameraPosition = .back
+        public var cameraPosition: CameraPosition = .back
         var cameraFilters: [CIFilter] = []
         var zoomFactor: CGFloat = 1.0
         var flashMode: CameraFlashMode = .off
@@ -37,7 +37,7 @@ public class CameraManager: NSObject, ObservableObject { init(_ attributes: Attr
         var deviceOrientation: AVCaptureVideoOrientation = .portrait
         var userBlockedScreenRotation: Bool = false
     }
-    @Published private(set) var attributes: Attributes
+    @Published public var attributes: Attributes
 
     // MARK: Devices
     private var frontCamera: AVCaptureDevice?
@@ -76,6 +76,8 @@ public class CameraManager: NSObject, ObservableObject { init(_ attributes: Attr
     private(set) var frameOrientation: CGImagePropertyOrientation = .right
     private(set) var orientationLocked: Bool = false
     private(set) var initialAttributes: Attributes
+
+    private var isSetup = false
 }
 
 // MARK: - Cancellation
@@ -135,6 +137,7 @@ extension CameraManager {
 // MARK: - Initialising Camera
 extension CameraManager {
     func setup(in cameraView: UIView) {
+        guard !isSetup else { return }
         do {
             makeCameraViewInvisible(cameraView)
             checkPermissions()
@@ -156,6 +159,8 @@ extension CameraManager {
             try setupFrameRate()
 
             startCaptureSession()
+
+            isSetup = true
         } catch { print("CANNOT SETUP CAMERA: \(error)") }
     }
 }
@@ -786,21 +791,20 @@ private extension CameraManager {
     func updateFrameOrientation(_ newFrameOrientation: CGImagePropertyOrientation) { if newFrameOrientation != frameOrientation {
         let shouldAnimate = shouldAnimateFrameOrientationChange(newFrameOrientation) && isRunning
 
-        animateFrameOrientationChangeIfNeeded(shouldAnimate)
         changeFrameOrientation(shouldAnimate, newFrameOrientation)
     }}
 }
 private extension CameraManager {
     func getNewFrameOrientationForBackCamera(_ orientation: UIDeviceOrientation) -> CGImagePropertyOrientation { switch orientation {
         case .portrait: attributes.mirrorOutput ? .leftMirrored : .right
-        case .landscapeLeft: attributes.mirrorOutput ? .rightMirrored : .right
-        case .landscapeRight: attributes.mirrorOutput ? .rightMirrored : .right
+        case .landscapeLeft: attributes.mirrorOutput ? .upMirrored : .up
+        case .landscapeRight: attributes.mirrorOutput ? .downMirrored : .down
         default: attributes.mirrorOutput ? .leftMirrored : .right
     }}
     func getNewFrameOrientationForFrontCamera(_ orientation: UIDeviceOrientation) -> CGImagePropertyOrientation { switch orientation {
         case .portrait: attributes.mirrorOutput ? .right : .leftMirrored
-        case .landscapeLeft: attributes.mirrorOutput ? .left : .leftMirrored
-        case .landscapeRight: attributes.mirrorOutput ? .left : .leftMirrored
+        case .landscapeLeft: attributes.mirrorOutput ? .down : .downMirrored
+        case .landscapeRight: attributes.mirrorOutput ? .up : .upMirrored
         default: attributes.mirrorOutput ? .right : .leftMirrored
     }}
     func shouldAnimateFrameOrientationChange(_ newFrameOrientation: CGImagePropertyOrientation) -> Bool {
