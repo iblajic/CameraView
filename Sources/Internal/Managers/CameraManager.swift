@@ -771,7 +771,7 @@ private extension CameraManager {
         let newUserBlockedScreenRotation = getNewUserBlockedScreenRotation()
         updateUserBlockedScreenRotation(newUserBlockedScreenRotation)
     }
-    func updateFrameOrientation() { if UIDevice.current.orientation != .portraitUpsideDown {
+    func updateFrameOrientation() { if UIDevice.current.orientation != .portraitUpsideDown &&  UIDevice.current.orientation != .faceUp &&  UIDevice.current.orientation != .faceDown {
         let newFrameOrientation = getNewFrameOrientation(orientationLocked ? .portrait : UIDevice.current.orientation)
         updateFrameOrientation(newFrameOrientation)
     }}
