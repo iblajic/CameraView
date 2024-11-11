@@ -310,7 +310,7 @@ fileprivate struct CloseButton: View {
         Button(action: action) {
             Image("icon-cancel", bundle: .mijick)
                 .resizable()
-                .frame(width: 24, height: 24)
+                .frame(width: 30, height: 30)
                 .foregroundColor(Color.white)
         }
     }
