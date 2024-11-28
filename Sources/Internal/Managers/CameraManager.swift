@@ -208,13 +208,24 @@ private extension CameraManager {
         cameraGridView = .init()
         cameraGridView.alpha = attributes.isGridVisible ? 1 : 0
 
-        let height = cameraView.frame.width * 4.0 / 3.0
-        cameraView.addSubview(cameraGridView)
-        cameraGridView.translatesAutoresizingMaskIntoConstraints = false
-        cameraGridView.leftAnchor.constraint(equalTo: cameraView.leftAnchor, constant: 0).isActive = true
-        cameraGridView.rightAnchor.constraint(equalTo: cameraView.rightAnchor, constant: 0).isActive = true
-        cameraGridView.centerYAnchor.constraint(equalTo: cameraView.centerYAnchor, constant: 0).isActive = true
-        cameraGridView.heightAnchor.constraint(equalToConstant: height).isActive = true
+        if UIDevice.current.orientation == .portrait {
+            let height = cameraView.frame.width * 4.0 / 3.0
+            cameraView.addSubview(cameraGridView)
+            cameraGridView.translatesAutoresizingMaskIntoConstraints = false
+            cameraGridView.leftAnchor.constraint(equalTo: cameraView.leftAnchor, constant: 0).isActive = true
+            cameraGridView.rightAnchor.constraint(equalTo: cameraView.rightAnchor, constant: 0).isActive = true
+            cameraGridView.centerYAnchor.constraint(equalTo: cameraView.centerYAnchor, constant: 0).isActive = true
+            cameraGridView.heightAnchor.constraint(equalToConstant: height).isActive = true
+        } else {
+            let width = cameraView.frame.height * 4.0 / 3.0
+            cameraView.addSubview(cameraGridView)
+            cameraGridView.translatesAutoresizingMaskIntoConstraints = false
+            cameraGridView.topAnchor.constraint(equalTo: cameraView.topAnchor, constant: 0).isActive = true
+            cameraGridView.bottomAnchor.constraint(equalTo: cameraView.bottomAnchor, constant: 0).isActive = true
+            cameraGridView.centerXAnchor.constraint(equalTo: cameraView.centerXAnchor, constant: 0).isActive = true
+            cameraGridView.widthAnchor.constraint(equalToConstant: width).isActive = true
+        }
+
     }
     func initialiseDevices() {
         frontCamera = .default(.builtInWideAngleCamera, for: .video, position: .front)
@@ -754,6 +765,7 @@ private extension CameraManager {
         updateDeviceOrientation(newDeviceOrientation)
         updateUserBlockedScreenRotation()
         updateFrameOrientation()
+        initialiseCameraGridView()
     }}
 }
 private extension CameraManager {

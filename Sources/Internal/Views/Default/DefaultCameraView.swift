@@ -138,6 +138,7 @@ private extension DefaultCameraView {
     }
 }
 private extension DefaultCameraView {
+    @ViewBuilder
     func createCloseButton(isPortrait: Bool) -> some View {
         if isPortrait {
             CloseButton(action: closeControllerAction)
@@ -146,9 +147,10 @@ private extension DefaultCameraView {
                 .isActive(!isRecording)
         }
         else {
+            let alignment: Alignment = UIDevice.current.orientation == .landscapeRight ? .top : .bottom
             CloseButton(action: closeControllerAction)
                 .rotationEffect(iconAngle)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+                .frame(maxHeight: .infinity, alignment: alignment)
                 .isActive(!isRecording)
         }
     }
@@ -170,12 +172,13 @@ private extension DefaultCameraView {
                 .isActive(!isRecording)
                 }
         } else {
+            let alignment: Alignment = UIDevice.current.orientation == .landscapeRight ? .bottom : .top
             Group {
                 VStack(spacing: 12) {
                     createGridButton()
                     createFlashButton()
                 }
-                .frame(maxHeight: .infinity, alignment: .top)
+                .frame(maxHeight: .infinity, alignment: alignment)
                 .isActive(!isRecording)
             }
         }
@@ -202,6 +205,7 @@ private extension DefaultCameraView {
     }
 }
 private extension DefaultCameraView {
+    @ViewBuilder
     func createTorchButton(isPortrait: Bool) -> some View {
         if isPortrait {
             BottomButton(icon: "icon-torch", active: torchMode == .on, action: changeTorchMode)
@@ -211,10 +215,11 @@ private extension DefaultCameraView {
                 .isActive(hasTorch)
                 .isActive(config.torchButtonVisible)
         } else {
+            let alignment: Alignment = UIDevice.current.orientation == .landscapeRight ? .top : .bottom
             BottomButton(icon: "icon-torch", active: torchMode == .on, action: changeTorchMode)
                 .matchedGeometryEffect(id: "button-bottom-left", in: namespace)
                 .rotationEffect(iconAngle)
-                .frame(maxHeight: .infinity, alignment: .bottom)
+                .frame(maxHeight: .infinity, alignment: alignment)
                 .isActive(hasTorch)
                 .isActive(config.torchButtonVisible)
         }
@@ -222,6 +227,7 @@ private extension DefaultCameraView {
     func createCaptureButton(isPortrait: Bool) -> some View {
         CaptureButton(action: captureOutput, mode: outputType, isRecording: isRecording).isActive(config.captureButtonVisible)
     }
+    @ViewBuilder
     func createChangeCameraButton(isPortrait: Bool) -> some View {
         if isPortrait {
             BottomButton(icon: "icon-change-camera", active: false, action: changeCameraPosition)
@@ -231,10 +237,11 @@ private extension DefaultCameraView {
                 .isActive(!isRecording)
                 .isActive(config.changeCameraButtonVisible)
         } else {
+            let alignment: Alignment = UIDevice.current.orientation == .landscapeRight ? .bottom : .top
             BottomButton(icon: "icon-change-camera", active: false, action: changeCameraPosition)
                 .matchedGeometryEffect(id: "button-bottom-right", in: namespace)
                 .rotationEffect(iconAngle)
-                .frame(maxHeight: .infinity, alignment: .top)
+                .frame(maxHeight: .infinity, alignment: alignment)
                 .isActive(!isRecording)
                 .isActive(config.changeCameraButtonVisible)
         }
