@@ -24,5 +24,6 @@ struct CameraConfig {
     var onImageCaptured: (UIImage, CameraPosition) -> () = { _, _ in }
     var onVideoCaptured: (URL) -> () = { _ in }
     var afterMediaCaptured: (PostCameraConfig) -> (PostCameraConfig) = { _ in .init() }
+    var onOpenLibrary: () -> () = {}
     var onCloseController: () -> () = {}
 }

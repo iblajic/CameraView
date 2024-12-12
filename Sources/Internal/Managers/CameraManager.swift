@@ -36,6 +36,7 @@ public class CameraManager: NSObject, ObservableObject { init(_ attributes: Attr
         var recordingTime: MTime = .zero
         var deviceOrientation: AVCaptureVideoOrientation = .portrait
         var userBlockedScreenRotation: Bool = false
+        public var lastPhoto: UIImage?
     }
     @Published public var attributes: Attributes
 

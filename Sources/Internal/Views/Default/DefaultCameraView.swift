@@ -14,6 +14,7 @@ import SwiftUI
 public struct DefaultCameraView: MCameraView {
     @ObservedObject public var cameraManager: CameraManager
     public let namespace: Namespace.ID
+    public let openLibraryAction: () -> ()
     public let closeControllerAction: () -> ()
     var config: Config = .init()
 
@@ -100,7 +101,7 @@ private extension DefaultCameraView {
     func createBottomView(isPortrait: Bool) -> some View {
         if isPortrait {
             ZStack {
-                createTorchButton(isPortrait: true)
+                createLibraryButton(isPortrait: true)
                 createCaptureButton(isPortrait: true)
                 createChangeCameraButton(isPortrait: true)
             }
@@ -110,7 +111,7 @@ private extension DefaultCameraView {
             .padding(.horizontal, 32)
         } else {
             ZStack {
-                createTorchButton(isPortrait: false)
+                createLibraryButton(isPortrait: false)
                 createCaptureButton(isPortrait: false)
                 createChangeCameraButton(isPortrait: false)
             }
@@ -206,23 +207,34 @@ private extension DefaultCameraView {
 }
 private extension DefaultCameraView {
     @ViewBuilder
-    func createTorchButton(isPortrait: Bool) -> some View {
-        if isPortrait {
-            BottomButton(icon: "icon-torch", active: torchMode == .on, action: changeTorchMode)
+    func createLibraryButton(isPortrait: Bool) -> some View {
+        if let lastImage = cameraManager.attributes.lastPhoto {
+            if isPortrait {
+                Button(action: openLibraryAction, label: {
+                    Image(uiImage: lastImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 65, height: 65)
+                        .clipped()
+                })
                 .matchedGeometryEffect(id: "button-bottom-left", in: namespace)
                 .rotationEffect(iconAngle)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .isActive(hasTorch)
-                .isActive(config.torchButtonVisible)
-        } else {
-            let alignment: Alignment = UIDevice.current.orientation == .landscapeRight ? .top : .bottom
-            BottomButton(icon: "icon-torch", active: torchMode == .on, action: changeTorchMode)
+            } else {
+                let alignment: Alignment = UIDevice.current.orientation == .landscapeRight ? .top : .bottom
+                Button(action: openLibraryAction, label: {
+                    Image(uiImage: lastImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 65, height: 65)
+                        .clipped()
+                })
                 .matchedGeometryEffect(id: "button-bottom-left", in: namespace)
                 .rotationEffect(iconAngle)
                 .frame(maxHeight: .infinity, alignment: alignment)
-                .isActive(hasTorch)
-                .isActive(config.torchButtonVisible)
+            }
         }
+
     }
     func createCaptureButton(isPortrait: Bool) -> some View {
         CaptureButton(action: captureOutput, mode: outputType, isRecording: isRecording).isActive(config.captureButtonVisible)

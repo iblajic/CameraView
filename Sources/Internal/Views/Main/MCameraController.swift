@@ -42,7 +42,7 @@ private extension MCameraController {
         config.mediaPreviewView?(media, namespace, cameraManager.resetCapturedMedia, performAfterMediaCapturedAction).erased()
     }
     func createCameraView() -> some View {
-        config.cameraView(cameraManager, namespace, config.onCloseController).erased()
+        config.cameraView(cameraManager, namespace, config.onOpenLibrary, config.onCloseController).erased()
     }
 }
 
